@@ -23,7 +23,7 @@ aeropuertos_detalle_path = 'database/aeropuertos_detalle.csv'
 informe_ministerio_paths = [
     'database/202405_informe-ministerio.csv',
     'database/202312_informe-ministerio-actualizado-dic.csv',
-    'database/202212_informeministerio.csv',
+    'database/202212_informe-ministerio.csv',
     'database/202112_informe_ministerio.csv',
     'database/2020_informe_ministerio.csv',
     'database/2019_informe_ministerio.csv'
@@ -248,7 +248,7 @@ st.markdown("""
 footer {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
-st.markdown("## Gracias por usar el Dashboard Flavio Cesar")
+st.markdown("## Gracias por usar ✈️ Dashboard de Análisis de Aeropuertos")
 
 # Footer con Copyright
 st.markdown("""
