@@ -97,3 +97,55 @@ informe_ministerio['Hora UTC'] = pd.to_datetime(informe_ministerio['Hora UTC'], 
 # Revisar valores nulos en informe_ministerio
 informe_ministerio.fillna(0, inplace=True)
 
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Ejemplo de un gráfico: Distribución de aeropuertos por provincia
+plt.figure(figsize=(12, 6))
+sns.countplot(data=aeropuertos_detalle, y='provincia', order=aeropuertos_detalle['provincia'].value_counts().index)
+plt.title('Distribución de Aeropuertos por Provincia')
+plt.xlabel('Número de Aeropuertos')
+plt.ylabel('Provincia')
+plt.show()
+
+import streamlit as st
+import pandas as pd
+
+# Título del Dashboard
+st.title('Dashboard de Aeropuertos y Vuelos')
+
+# Carga de datos
+@st.cache_data
+def load_data():
+    aeropuertos_detalle = pd.read_csv('/mnt/data/aeropuertos_detalle.csv', delimiter=';')
+    informe_ministerio = pd.read_csv('/mnt/data/202405-informe-ministerio.csv', delimiter=';')
+    return aeropuertos_detalle, informe_ministerio
+
+aeropuertos_detalle, informe_ministerio = load_data()
+
+# Sidebar para filtros
+st.sidebar.header('Filtros')
+estado = st.sidebar.multiselect('Estado', aeropuertos_detalle['provincia'].unique())
+categoria = st.sidebar.multiselect('Categoría', informe_ministerio['Clasificación Vuelo'].unique())
+
+# Filtrar datos
+if estado:
+    aeropuertos_detalle = aeropuertos_detalle[aeropuertos_detalle['provincia'].isin(estado)]
+if categoria:
+    informe_ministerio = informe_ministerio[informe_ministerio['Clasificación Vuelo'].isin(categoria)]
+
+# Mostrar datos filtrados
+st.write('### Datos Filtrados de Aeropuertos')
+st.dataframe(aeropuertos_detalle)
+
+st.write('### Datos Filtrados del Informe Ministerio')
+st.dataframe(informe_ministerio)
+
+# Gráfico interactivo: Distribución de Aeropuertos por Provincia
+st.write('### Distribución de Aeropuertos por Provincia')
+fig, ax = plt.subplots(figsize=(12, 6))
+sns.countplot(data=aeropuertos_detalle, y='provincia', order=aeropuertos_detalle['provincia'].value_counts().index, ax=ax)
+ax.set_title('Distribución de Aeropuertos por Provincia')
+ax.set_xlabel('Número de Aeropuertos')
+ax.set_ylabel('Provincia')
+st.pyplot(fig)
