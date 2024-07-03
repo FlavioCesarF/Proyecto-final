@@ -196,33 +196,16 @@ st.markdown('#### Resumen de Llegadas y Salidas por Aeropuerto')
 aeropuerto_trafico = informe_ministerio.groupby(['Aeropuerto', 'Tipo de Movimiento']).size().unstack(fill_value=0)
 st.write(aeropuerto_trafico)
 
-df = pd.DataFrame(
-    np.random.randn(1000, 2) / [50, 50] + [37.76, -122.4],
-    columns=['lat', 'lon'])
-
-st.map(df)
-
-# Visualización 3D
-st.header('📊 Visualización 3D')
-st.markdown('#### Visualización 3D del Tráfico Aéreo')
-
-if 'longitud' in aeropuertos_detalle.columns and 'latitud' in aeropuertos_detalle.columns and 'elevacion' in aeropuertos_detalle.columns:
-    fig_3d = px.scatter_3d(
-        aeropuertos_detalle,
-        x='longitud',
-        y='latitud',
-        z='elevacion',
-        color='provincia',
-        hover_name='denominacion'
-    )
-    st.plotly_chart(fig_3d, use_container_width=True)
+# Mapa interactivo
+st.subheader('Mapa de Aeropuertos')
+if 'latitud' in aeropuertos_filtrados.columns and 'longitud' in aeropuertos_filtrados.columns:
+    m = folium.Map(location=[aeropuertos_filtrados['latitud'].mean(), aeropuertos_filtrados['longitud'].mean()], zoom_start=6)
+    for _, row in aeropuertos_filtrados.iterrows():
+        folium.Marker(
+            location=[row['latitud'], row['longitud']],
+            popup=f"{row['denominacion']} - {row['provincia']}",
+            icon=folium.Icon(icon='plane', prefix='fa')
+        ).add_to(m)
+    st_folium(m, width=850, height=750)
 else:
-    st.write("Las columnas 'longitud', 'latitud' y/o 'elevacion' no existen en el DataFrame de aeropuertos.")
-
-# Footer con Copyright
-st.markdown("""
-<hr style="border:2px solid gray"> </hr>
-<center>
-<p style="font-size:12px; color:gray;">&copy; 2024 Flavio Cesar Flores</p>
-</center>
-""", unsafe_allow_html=True)
+    st.write("Las columnas 'latitud' y/o 'longitud' no existen en el DataFrame de aeropuertos.")
