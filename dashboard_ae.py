@@ -9,6 +9,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from streamlit_lottie import st_lottie
 import requests
+import numpy as np
 
 # Configuración de la página de Streamlit
 st.set_page_config(page_title="Dashboard de Aeropuertos", page_icon="✈️", layout="wide")
@@ -56,18 +57,7 @@ informe_ministerio['PAX'] = pd.to_numeric(informe_ministerio['PAX'], errors='coe
 informe_ministerio = informe_ministerio.dropna(subset=['PAX'])
 
 # Título del Dashboard
-st.title('✈️ Dashboard de Análisis de Aeropuertos')
-
-# Animación Lottie
-def load_lottieurl(url: str):
-    r = requests.get(url)
-    if r.status_code != 200:
-        return None
-    return r.json()
-
-lottie_url = "https://lottie.host/becb33b8-1bf2-4eca-bc4a-b6d68375c4d5/FJ1dgjVxNg.json"
-lottie_json = load_lottieurl(lottie_url)
-st_lottie(lottie_json, speed=1, width=1300, height=350, key="dashboard")
+st.title('✈️ Dashboard Aeropuertos')
 
 # Muestra de datos
 st.header('📋 Vista Previa de Datos')
@@ -172,25 +162,6 @@ if 'Fecha UTC' in informe_filtrado.columns and 'PAX' in informe_filtrado.columns
 else:
     st.write("Las columnas 'Fecha UTC' y/o 'PAX' no existen en el DataFrame del informe del ministerio.")
 
-# Mapa interactivo usando folium
-st.header('🗺️ Mapa Interactivo de Aeropuertos')
-if 'latitud' in aeropuertos_filtrados.columns and 'longitud' in aeropuertos_filtrados.columns:
-    m = folium.Map(
-        location=[aeropuertos_filtrados['latitud'].mean(), aeropuertos_filtrados['longitud'].mean()],
-        zoom_start=5,
-        tiles='Stamen Terrain',
-        attr='Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under ODbL.'
-    )
-    for _, row in aeropuertos_filtrados.iterrows():
-        folium.Marker(
-            location=[row['latitud'], row['longitud']],
-            popup=f"{row['denominacion']} - {row['provincia']}",
-            icon=folium.Icon(icon='plane', prefix='fa')
-        ).add_to(m)
-    st_folium(m, width=700, height=500)
-else:
-    st.write("Las columnas 'latitud' y/o 'longitud' no existen en el DataFrame de aeropuertos.")
-
 # Conclusiones
 st.header('📌 Conclusiones')
 st.write('Aquí puedes incluir algunas conclusiones basadas en los datos analizados y las visualizaciones.')
@@ -225,6 +196,12 @@ st.markdown('#### Resumen de Llegadas y Salidas por Aeropuerto')
 aeropuerto_trafico = informe_ministerio.groupby(['Aeropuerto', 'Tipo de Movimiento']).size().unstack(fill_value=0)
 st.write(aeropuerto_trafico)
 
+df = pd.DataFrame(
+    np.random.randn(1000, 2) / [50, 50] + [37.76, -122.4],
+    columns=['lat', 'lon'])
+
+st.map(df)
+
 # Visualización 3D
 st.header('📊 Visualización 3D')
 st.markdown('#### Visualización 3D del Tráfico Aéreo')
@@ -241,14 +218,6 @@ if 'longitud' in aeropuertos_detalle.columns and 'latitud' in aeropuertos_detall
     st.plotly_chart(fig_3d, use_container_width=True)
 else:
     st.write("Las columnas 'longitud', 'latitud' y/o 'elevacion' no existen en el DataFrame de aeropuertos.")
-
-# Footer con Copyright
-st.markdown("""
-<style>
-footer {visibility: hidden;}
-</style>
-""", unsafe_allow_html=True)
-st.markdown("## Gracias por usar ✈️ Dashboard de Análisis de Aeropuertos")
 
 # Footer con Copyright
 st.markdown("""
